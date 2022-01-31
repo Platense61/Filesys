@@ -1,0 +1,14 @@
+
+Try:
+
+ ./userfs -reformat 200000 foo
+ ./userfs foo
+
+The makefile has been adjusted to compile with c99
+
+I have not added any new functions into the skeleton.
+
+Some notes on the current state of my USERFS: So far I have import export and delete working.
+They are a little buggy as you keep on importing deleting and exporting but seems to hold for
+the most part. fsck is not implemented yet. 
+

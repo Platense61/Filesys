@@ -1,0 +1,206 @@
+<html>
+
+  <head>
+	<title>User File System</title>
+	<link rel="stylesheet" type="text/css" href="../homework.css"
+  id="homework" />
+  	<style>
+  	body {
+  		width:			750px;
+  		font-family:		Bitstream Vera Sans, Sans, Sans-Serif;
+  	}
+  	table.vdisk {
+  		width:			250px;
+  		height:			250px;
+  		border:			2px outset black;
+  		text-align:		center;
+  		padding:			0;
+  		margin-left:		30%;
+  		margin-right:		30%;
+  	}
+  	table.vdisk tr {		padding:	0;  margin: 0;  	}
+  	table.vdisk  td {
+  		padding:			0;
+  		margin:			0;
+  		border:			1px solid black;
+  	}
+  	td.small-block {
+  		height:			10%;
+  	}
+  	
+  	.small-block, .large-block {
+  		text-transform:	uppercase;
+		font-style:		italic;
+  	}
+  	
+	</style>
+  </head>
+
+  <body>
+	
+	<h1>User File System</h1>
+<!--	
+	<p>
+	Most recent tar file: <a href="./userfs.tar"> userfs.tar</a>
+	</p>
+
+	<p>
+	<a href="./changeLog.html">View tar file change log </a> 
+	</p>
+-->
+    <hr>
+
+<p>
+For this assignment, you are expected to implement a unix-style mini file system.   The whole structure of the file system will exist within the single file.  You'll be storing and removing other files within this file system, which is just a file itself.
+</p>
+
+<p>
+The structure of this file is as followings: 
+</p>
+
+<table class="vdisk"> 
+	<tr><td class="small-block">SuperBlock</td></tr> 
+	<tr><td class="small-block">Bit Map</td></tr> 
+	<tr><td class="small-block">Root Directory</td></tr> 
+	<tr><td class="small-block">Inodes</td></tr> 
+	<tr><td class="large-block">DATA Blocks</td></tr> 
+</table> 
+
+<p>
+The <span class="small-block">SuperBlock</span> is the first block in the disk that contains global information about the file system. You can store in the <span class="small-block">superblock</span> things like starting location of the first block of the <span class="small-block">bit map</span>, the <span class="small-block">root directory</span>, the total number of free blocks, the overall size of the file system and any other thing you consider useful for making the file system persistent.
+</p>
+
+<p>
+The <span class="small-block">root directory</span> maintains the mapping between file names and inode numbers (or pointers). And the inodes has information about the data blocks in the file.  
+</p>
+
+<p>
+<em>For simplicity, you can assume:</em>
+</p>
+
+<ol>
+	<li>Your file system need not support multi-level directories. There is only a single 
+    directory in your file system. And this directory contains at most <var>100</var> files.</li>
+	<li>Each file contains at most <var>100</var> data blocks. Thus, The size of each file is less than <var>(block size) * 100</var>. You can define the size of data blocks yourself.</li>
+	<li>Inodes in your system contain only (at most <var>100</var>) direct pointers that points to data blocks. No indirect pointers are required.</li>
+</ol>
+
+<p>
+<em>Program usage</em>
+</p>
+
+<p class="note">
+Note: The number and size of files is also limited by the number of inodes and the number of free blocks. 
+</p>
+
+<ul>
+	<li><code>./userfs -reformat disk_size file_name</code>
+	<p class="note">Should create a virtual disk with the file name and size specified as arguments.</p>
+	</li>
+	<li><code>./userfs file_name</code>
+	<p class="note">Should retrieve the file system with the name of virtual disk specified as argument and attempt to recover the file system if there is any inconsistency. Once the file system is loaded, you will enter a shell where you can enter in each of the u_* commands.</p>
+	</li>
+</ul>
+    
+<h3>
+Here are the steps for the assignment.
+</h3>
+	
+<p>
+Download the skeleton code and work upon it to export the following functions. First, ensure that you can compile and run the skeleton. Next, create a new file using the reformat syntax shown above. This file simulates the virtual disk based on which you will build your file system. You should read through all of the source code of the skeleton to ensure that you are familiar with each of its components. It is expected that you read the usages of relevant syscalls needed for this assignment, such as by reading their manpages. Although it is not required, you may want to implemenent a seperate program that prints out the contents of the file system for debugging purposes. At this point you can begin programming each of the following functions that represents each of the commands in the userfs shell. 
+</p>
+	
+<ul>
+	<li><code>int u_import(char* linux_file, char* u_file)</code>:<br/>
+	Create's a new file named <var>u_file</var> in your system, and copies the <var>linux_file</var> from linux file system to it. If the size of <var>linux_file</var> is larger than the <var>MAXIMUM_FILE_SIZE</var> allowed by your file system or the size of free space left in your disk, this operation fails and <var>0</var> is returned. If <var>u_file</var> exists, just quit this operation and nothing needs to be done (also for simplicity).</li>
+
+	<li><code>int u_export(char* u_file, char* linux_file)</code>:<br/>
+	Copies the file <var>u_file</var> in your system to the file <var>linux_file</var>. If <var>linux_file</var> exists, quit the operation and nothing needs to be done.</li>
+
+	<li><code>int u_quota()</code>:<br/>
+	Returns how much free space is left in your virtual disk (already implemented in the sample code).</li>
+
+	<li><code>int u_del(char* u_file)</code>:<br/>
+	Removes file <var>u_file</var> in your system. If fail, <var>return 0</var> otherwise <var>return 1</var>.</li>
+
+	<li><code>int u_ls()</code>:<br/>
+	Returns a list that contains information about all the files in the <span class="small-block">root directory</span>. For each file, return the name, size and the last modified time it is imported(already implemented).</li>
+
+	<li><code>int u_fschk()</code>:<br/>
+	Checks the file system for any inconsistency, and tries to recover the system if it's inconsistent.</li>
+</ul>
+
+<p>
+Your system should support persistence and crash recovery. 
+</p>
+
+<p class="note">
+<strong>Persistence</strong> means that all data written to the disk will never disappear unless you call explicitly <code>u_del()</code> to remove them.
+</p>
+
+<p>
+Files should remain there after you quit the file system and restart it. You file system may be terminated illegally, e.g. <var>ctrl-c</var> is pressed. This may leave the system in an inconsistent state. You should be able to detect such inconsistent states and recover from them 
+when the file system restarts. While writing the <code>u_import()</code> and <code>u_export()</code> functions you should take care of the order of operations to maintain consistency in the file system.
+In the skeleton, there are file crash.h and crash.c that wrap around the read and write syscalls. They will randomly cause some kind of failure. Use these wrappers instead of using the syscalls directly as you are writing your code. In addition, you are not allowed to modify crash.c or crash.h or try to somehow circumvent the wrappers functionality. 
+</p>
+
+<p class="tip">
+  You should implement the program as described above to run in Linux. You can use either Polaris or your Arch Linux VM. If you use a different UNIX environment, ensure that your program compiles and works on either of those systems before turning in your work. Code that does not compile will lose half credit for all affected sections. Avoid using POSIX emulators such as WSL, Cygwin or MYSYS2, as these can introduce problems that you may not notice until you attempt to compile and run your code on other UNIX systems.
+</p>
+
+<h3>What to submit:</h3>
+<p>
+A single gzipped tar file containing one directory with the following files:
+<ol>
+	<li><strong>README</strong><br/>
+	README file should contain a guide to the rest of the files, including any you have created and ones that came with the skeleton. 
+	</li>
+	<li><strong>Writeup</strong><br/>
+	You writeup should describe how you implemented u_export(), u_import(), u_del()
+and u_fschk(). What all things you considered while exporting this functions in
+your file system. Particularly, you should explain how you take care of the order of operations to maintain consistency in the file system in case of crashes. 
+</li>
+	<p class="tip"> Here is some optional food for thought: <p/>
+	<ul>
+		<li>What is the largest file you can create in your file system?</li>
+		<li>What is the largest number of files?</li>
+		<li>What is the largest number of directory it can support?</li>
+		<li>How many subdirectory it can support?</li>
+		<li>If we reduce the block size, we also reduce the size of the bit map and the root directory</li>
+		<li>How do the answers to the above questions change with a block size of 1024? 8192?</li>
+		<li>Some simple things we could do to elleviate this problem is use each bit in the bit map rather than using an entire unsigned long ( 4 bytes) to represent a "bit" and make the root level directory be variable sized (i.e.  give it its own inode).</li>
+		<li>You learned the effects of what happens when more than one concurrent thread accesses a resource. What would happen if two instances of the userfs were to access the file? What would be a good way to protect the file from these effects?</li>
+		<li>Suppose that a random bit was flipped in your file and it doesn't corrupt the file system. How could you detect that an error had occured and how would you fix it?</li>
+	</ul>
+	</p>
+	<li><strong>Makefile</strong> for compiling</li>
+	<li>Source files (<strong>userfs.c</strong> &amp; <strong>userfs.h</strong>, etc.)</li>
+</ol>
+
+<h3>Grading rubric</h3>
+
+<p>The total score for the assignment will be out of 100 points. With the following breakdown:</p>
+<ol>
+	<li>Files are correctly imported through u_import (15)</li>
+	<li>Files are correctly exported through u_export (15)</li>
+	<li>Files are correctly deleted through u_del (10)</li>
+	<li>Fsck finds and corrects file system corruption in u_fsck (15)</li>
+	<li>Data is kept consistent when an error or crash occurs (10)</li>
+	<li>Writeup with full and correct information (20)</li>
+	<li>Safe code practices are used and validity checks are correct (20)</li>
+</ol>
+
+<h3>Where to submit:</h3>
+
+<p>
+<ol>Submit to moodle</code>
+</ol>
+</p>
+<h3>Useful resources</h3>
+
+<p>
+Man pages: <var>stat (2)</var>, <var>fstat</var>, <var>lseek</var>, <var>read (2)</var>, <var>write (2)</var>
+</p>
+
+
+
